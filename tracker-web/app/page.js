@@ -22,7 +22,7 @@ export default function Home() {
     fetch("http://localhost:4000/accounts")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Where is ACCOUNTS LIST Data", data);
+        // console.log("Where is frontEnd ACCOUNTS LIST Data", data);
         setAccounts(data);
       });
   }
@@ -50,6 +50,16 @@ export default function Home() {
       });
   }
 
+  function handleDelete(id) {
+    fetch(`http://localhost:4000/accounts/${id}`, {
+      method: "DELETE",
+    }).then((res) => {
+      if (res.status === 404) {
+        alert("Account not found");
+      }
+      loadAccount();
+    });
+  }
   // Одоо create хийхдээ урт текстийг яаж оруулж ирэх вэ гэдэг асуудал гарна. Body гэсэн урт текстийг хэрхэн оруулж ирэх вэ? Ганц ширхэг нэр болон гарчиг бол // http://localhost:4000/accounts/create?name=Bold&title=harvest гэж оруулахад асуудалгүй ч урт body-ийг бол оруулах боломжгүй байгаа.
 
   //
@@ -90,7 +100,10 @@ export default function Home() {
                   <button className="px-4 text-white bg-blue-800 rounded-full">
                     Edit
                   </button>
-                  <button className="px-4 text-white bg-blue-800 rounded-full">
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="px-4 text-white bg-blue-800 rounded-full"
+                  >
                     Delete
                   </button>
                 </div>

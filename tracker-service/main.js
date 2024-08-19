@@ -56,18 +56,22 @@ app.post("/accounts", (req, res) => {
   //   accounts.push({ title: "new accounts", name: "saraa" });
   //   res.json("SUCCESS");
   const { name, title } = req.body;
+  const id = new Date().toISOString();
 
-  console.log("=== Where is req.body ===", req.body);
+  // console.log("=== Where isBACKEND req.body ===", req.body);
 
   accounts.push({
-    id: new Date().toISOString(),
+    id: id,
     title: title,
     name: name,
   });
 
+  console.log({ id });
+
   // Write to file system
   fs.writeFileSync("accounts.json", JSON.stringify(accounts));
-  res.json(accounts);
+
+  res.status(201).json({ id });
 });
 
 // Хэрэглэгчээс буюу FrontEnd-c юм дамжуулахад 2 төрлөөр дамжуулж өгч байгаа. Нэг нь бол шууд зам дээр нь ID өгнө (catergory/1234). Ингэж зам дээр нь  ID өгсөнийг // const { id, name, title } = req.params; гэж барьж авна. Нөгөө арга нь (/catergory?id=1234) req.query буюу const { id, name, title } = req.query; гэж утгыг нь барьж авна.
@@ -82,6 +86,12 @@ app.put("/accounts/:id", (req, res) => {
   accounts[index].name = name;
   accounts[index].title = title;
 
+  //  Bad reqest - хүсэлт буруу байна.
+  if (!name && !title) {
+    res.status(400).json({ message: "`Name & Title is required`" });
+    return;
+  }
+
   fs.writeFileSync("accounts.json", JSON.stringify(accounts));
   res.json("SUCCESS");
 });
@@ -93,10 +103,18 @@ app.delete("/accounts/:id", (req, res) => {
   //
   const { id } = req.params;
   console.log({ id });
+  // тухайн утгах id-тай data бхгүй бол яах вэ? гэвэл бхгүй байна гэдэг алдаа заах ёстой.
+  const deleteIndex = accounts.findIndex((acc) => acc.id === id);
+  // хэрвээ deleteIndex нь бхгүй буюу тэгээс бага байх юм бол:
+  if (deleteIndex < 0) {
+    res.sendStatus(404);
+    return;
+  }
 
   accounts = accounts.filter((acc) => acc.id !== id);
   fs.writeFileSync("accounts.json", JSON.stringify(accounts));
-  res.json("SUCCESS");
+
+  res.sendStatus(204);
 });
 
 // CRUD: Create, Read, Update, Delete
