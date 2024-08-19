@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 //
 const app = express();
@@ -35,6 +36,32 @@ let accounts = JSON.parse(content);
 * DELETE: DELETE                          /categories:id
 
 */
+//  энэ функцийг бичих
+function getAccounts() {}
+
+//  энэ функцийг бичих
+function getOneAccount(id) {}
+
+//  энэ функцийг бичих
+function updateAccounts(id, update) {}
+
+//  энэ функцийг бичих
+function deleteAccounts(id) {}
+
+//
+async function createNewAccount(newAccount) {
+  // id-ийг огноогоор үүсгэх нь сул талтай. id- нь хүн тааж олох боломжгүй мөн хэзээ ч давхарддаггүй байх ёстой байдаг. Энэ id-ийг  үүсгэж өгдөг сангууд байдаг. Ж нь : uuid - universal uniqui ID
+  const id = uuidv4();
+  newAccount.id = id;
+  //
+  //
+
+  // console.log("=== Where isBACKEND req.body ===", req.body);
+  accounts.push(newAccount);
+  // Write to file system
+  fs.writeFileSync("accounts.json", JSON.stringify(accounts));
+  return id;
+}
 
 // CRUD:Read
 app.get("/accounts", (req, res) => {
@@ -50,27 +77,15 @@ app.get("/accounts/:id", (req, res) => {
 
 //
 //CRUD:Create
-app.post("/accounts", (req, res) => {
+// body-гоос name, title  оруулах юм байна. Түүнийгээ createNewAccount функц рүү дамжуулаад энэ функц маань id гэдэг юм дамжуулна түүнийг нь res.status(201).json({ id }); --д хийгээд дамжуулчихна гэдэг харахад цэгцтэй болж байна. Харин createNewAccount функц нь зөвхөн цоо шинэ account үүсгэдэг болж байна. app.post("/accounts", async (req, res) хараин энд бол createNewAccount функц--ээс юм аваад дамжуулдаг үйлдэл хийгдэж байна. Ингээд тус тусад нь хийх юм бол дараа нь  createNewAccount --ийг цааш дата баазтай холбоё гэвэл app.post("/accounts", async (req, res) => энэ код огт өөрчлөгдөхгүй давуу талтай. Ганцхан createNewAccount функц доторх код өөрчлөгдөнө. Нэг функц нэг үйлдлээ л сайн хийдэг баймаар байгаад байна. app.post("/accounts", async (req, res) =>  энэ функц бол дамжуулалтын үүрэг гүйцэтгээд байна.createNewAccount функц нь цаашаагаа дата бааз руу хадгалдаг үйлдлийг хийнэ.
+
+app.post("/accounts", async (req, res) => {
   //   console.log(req.params);
   //   console.log(req.query);
   //   accounts.push({ title: "new accounts", name: "saraa" });
   //   res.json("SUCCESS");
   const { name, title } = req.body;
-  const id = new Date().toISOString();
-
-  // console.log("=== Where isBACKEND req.body ===", req.body);
-
-  accounts.push({
-    id: id,
-    title: title,
-    name: name,
-  });
-
-  console.log({ id });
-
-  // Write to file system
-  fs.writeFileSync("accounts.json", JSON.stringify(accounts));
-
+  id = await createNewAccount({ name, title });
   res.status(201).json({ id });
 });
 
